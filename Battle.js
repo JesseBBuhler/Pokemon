@@ -16,6 +16,39 @@ class Battle {
     this.player1 = player1;
     this.player2 = player2;
     this.winner = "none";
+    this.dieSize;
+  }
+
+  rollDie(dieSize = this.dieSzie) {
+    return Math.floor(Math.random() * dieSize) + 1;
+  }
+
+  rollMod(dieSize = this.dieSize, modifier = 0, advantage = false) {
+    let roll = this.rollDie(dieSize);
+    if (advantage) {
+      roll2 = this.rollDie(dieSize);
+      if (roll2 > roll) {
+        roll = roll2;
+      }
+    }
+
+    return roll + modifier;
+  }
+
+  strike(attack, monster) {
+    let advantage = attack.getType().hitBonus() == monster.getType().getName();
+    attackRoll = this.rollMod(this.dieSize, attack.getHitPlus(), advantage);
+    if (attackRoll >= monster.getAc()) {
+      damageRole = 0;
+      advantage =
+        attack.getType().getDamageBonus() == monster.getType().getName();
+      damageRoll = this.rollMod(
+        attack.getDamageDie(),
+        attack.getDamagePlus(),
+        advantage
+      );
+      monster.takeDamage(damageRole);
+    }
   }
 
   runBattle() {
