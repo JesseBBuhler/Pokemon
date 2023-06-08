@@ -1,0 +1,34 @@
+What features do I want to include?
+
+# At first start simple
+# Just have the mechanics for a single battle
+# 
+
+Classes
+
+# Monster 
+## keep track of the information of a particular Monster
+
+# battle
+## Manage the interaction between Monsters in a battle, including rewarding the winner.
+
+# Player
+## keep track of what items and monsters a player has 
+
+# Attack
+## keeps track of damage, chance to hit, etc.
+
+# item
+## keeps track of what the item does
+
+Game Mechanics for now:
+
+
+The battle has two Players
+Each Player has a list of Monsters
+Each Monster has a list of Attacks
+Each Attack has a type, damage probablity, and hit probablity
+The players select which attack they want to use
+The battle lasts until one player runs out of monsters
+A winner is declared
+
