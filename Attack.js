@@ -20,7 +20,7 @@ class Attack {
   }
 
   getDamagePlus() {
-    return this.getDamagePlus;
+    return this.damagePlus;
   }
 
   getHitPlus() {

@@ -1,0 +1,27 @@
+{
+  "name": "pokemon",
+  "version": "1.0.0",
+  "description": "not really pokemon but kind of trying to be.",
+  "main": "Play.js",
+  "dependencies": {
+    "jest": "^29.5.0",
+    "prompt-sync": "^4.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JesseBBuhler/Pokemon.git"
+  },
+  "keywords": [
+    "Pokemon"
+  ],
+  "author": "braydenbuhler@hotmail.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JesseBBuhler/Pokemon/issues"
+  },
+  "homepage": "https://github.com/JesseBBuhler/Pokemon#readme"
+}
