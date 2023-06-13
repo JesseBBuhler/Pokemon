@@ -1,4 +1,4 @@
-const Type = require("./Type");
+const Type = require("../Type");
 
 type = new Type("Water", "Fire", "Earth");
 

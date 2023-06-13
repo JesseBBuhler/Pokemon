@@ -1,4 +1,4 @@
-const Attack = require("./Attack");
+const Attack = require("../Attack");
 
 attack = new Attack("Water", 4, 5, 6, "Mummy");
 
