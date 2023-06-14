@@ -59,7 +59,7 @@ class Battle {
     //starting game loop
     while (this.winner == "none") {
       //if the offensive player cannot act then the defensive player wins.
-      if (!offence.canAct()) {
+      if (!offence.listMonsters()) {
         this.winner = deffence.name;
       } else {
         //the deffence recieves the effect of offence's turn.

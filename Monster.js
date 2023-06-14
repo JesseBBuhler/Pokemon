@@ -1,9 +1,10 @@
 const Attack = require("./Attack");
 
 class Monster {
-  constructor(type, hp, ac, attacks, name) {
+  constructor(type, maxHp, ac, attacks, name) {
     this.type = type;
-    this.hp = hp;
+    this.maxHp = maxHp;
+    this.hp = maxHp;
     this.ac = ac;
     this.attacks = attacks
       .slice(0)
@@ -30,6 +31,16 @@ class Monster {
     if (this.hp <= 0) {
       this.hp = 0;
       this.isAlive = false;
+    }
+  }
+
+  heal(amount) {
+    this.hp += amount;
+    if (this.hp > this.maxHp) {
+      this.hp = this.maxHp;
+    }
+    if (this.isAlive == false) {
+      this.isAlive = true;
     }
   }
 

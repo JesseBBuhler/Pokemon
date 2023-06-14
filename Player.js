@@ -1,29 +1,52 @@
 class Player {
-  constructor(Monsters, name) {
-    this.Actions = Monsters;
+  constructor(name) {
+    this.monsters = [];
     this.name = name;
   }
 
-  canAct() {
-    if (this.Actions.length > 0) {
-      return true;
-    } else {
+  addMonster(monster) {
+    if (this.monsters.length >= 6) {
       return false;
     }
+
+    this.monsters.push(monster);
+    return true;
   }
 
-  listActions() {
-    return this.Actions;
+  listMonsters() {
+    return this.monsters;
   }
 
-  takeTurn() {
-    console.log(this.Actions);
-    console.log(`${this.name} played ${this.Actions[0]}`);
-    return this.Actions[0];
+  moveMonsterToFront(index) {
+    if (index >= this.monsters.length || index < 0) {
+      return false;
+    }
+
+    let monster = this.monsters[index];
+
+    this.monsters.splice(index, 1);
+
+    this.monsters.unshift(monster);
+    return true;
   }
 
-  recieveEvent(event) {
-    console.log(`${this.Actions.shift()} dies.`);
+  listActiveMonsters() {
+    let activeMonsters = [];
+    for (let i = 0; i < this.monsters.length; i++) {
+      if (this.monsters[i].getIsAlive()) {
+        activeMonsters.push(this.monsters[i]);
+      }
+    }
+    return activeMonsters;
+  }
+
+  removeMonster(index) {
+    if (index >= this.monsters.length || index < 0) {
+      return false;
+    }
+
+    this.monsters.splice(index, 1);
+    return true;
   }
 }
 
