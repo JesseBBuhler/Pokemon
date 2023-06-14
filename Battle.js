@@ -11,6 +11,8 @@
  *
  */
 
+const prompt = require("prompt-sync")();
+
 class Battle {
   constructor(player1, player2) {
     this.player1 = player1;
@@ -35,6 +37,7 @@ class Battle {
     return roll + modifier;
   }
 
+  //calculate if attack hits monster and how much damage the attack does.  Monster then takes that damage.
   strike(attack, monster) {
     let advantage = attack.getType().hitBonus() == monster.getType().getName();
     attackRoll = this.rollMod(this.dieSize, attack.getHitPlus(), advantage);
@@ -51,6 +54,53 @@ class Battle {
     }
   }
 
+  getStats(player) {
+    let statString = `${player.getName()}:`;
+    let activeMonsters = player.activeMonsters;
+
+    for (let i = 0; i < activeMonsters.length; i++) {
+      statString += ` ${activeMonsters[i].getName()}-
+      ${activeMonsters[i].getHp()}${i == activeMonsters.length ? "" : ","}`;
+    }
+    return statString;
+  }
+
+  battleSituation() {
+    //current monsters of each player and those monsters' health
+    /**
+     * Player 1: Monster-23, Monster-10, Monster-45, Monster-16, Monster-12
+     * Player 2: Monster-23, Monster-45, Monster-16, Monster-12
+     */
+    let battleString =
+      this.getStats(this.player1) + "\n" + this.getStats(this.player2) + "\n";
+
+    return battleString;
+  }
+
+  promptPlayerAction(player) {
+    if (player.listActiveMonsters().length == 0) {
+      return null;
+    }
+
+    let attackOptions = player.listActiveMonsters()[0].listAttacks();
+
+    console.log("Available Actions:");
+    for (let i = 0; i <= attackOptions.length; i++) {
+      if (i == attackOptions.length) {
+        console.log(`${i + 1}: Resign`);
+      }
+      console.log(`${i + 1}: ${attackOptions[i].getName()}`);
+    }
+    let playerActionIndex = prompt(
+      "Enter the number of the action you would like to take."
+    );
+    if (playerActionIndex - 1 == attackOptions.length) {
+      return null;
+    }
+
+    return attackOptions[playerActionIndex - 1];
+  }
+
   runBattle() {
     // initializing turn order
     let offence = this.player1;
@@ -58,12 +108,14 @@ class Battle {
 
     //starting game loop
     while (this.winner == "none") {
-      //if the offensive player cannot act then the defensive player wins.
-      if (!offence.listMonsters()) {
-        this.winner = deffence.name;
+      //prompt the player for their action
+      let playerAction = this.promptPlayerActions(offence);
+
+      //if the offensive player cannot act, or resigns then the defensive player wins.
+      if (!playerAction) {
+        this.winner = deffence.getName();
       } else {
-        //the deffence recieves the effect of offence's turn.
-        deffence.recieveEvent(offence.takeTurn());
+        this.strike(playerAction, deffence.listActiveMonsters[0]);
 
         //change turn
         let placeHolder = offence;
@@ -73,7 +125,7 @@ class Battle {
     }
 
     //declaring winner
-    console.log(`Battle Resultes: ${this.winner} won.`);
+    console.log(`Battle Results: ${this.winner} won.`);
   }
 }
 

@@ -4,6 +4,10 @@ class Player {
     this.name = name;
   }
 
+  getName() {
+    return this.name;
+  }
+
   addMonster(monster) {
     if (this.monsters.length >= 6) {
       return false;
