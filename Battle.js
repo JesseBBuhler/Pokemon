@@ -17,7 +17,7 @@ class Battle {
   constructor(player1, player2) {
     this.player1 = player1;
     this.player2 = player2;
-    this.winner = "none";
+    this.winner = null;
     this.dieSize;
   }
 
@@ -56,7 +56,7 @@ class Battle {
 
   getStats(player) {
     let statString = `${player.getName()}:`;
-    let activeMonsters = player.activeMonsters;
+    let activeMonsters = player.listActiveMonsters();
 
     for (let i = 0; i < activeMonsters.length; i++) {
       statString += ` ${activeMonsters[i].getName()}-
@@ -77,28 +77,92 @@ class Battle {
     return battleString;
   }
 
-  promptPlayerAction(player) {
-    if (player.listActiveMonsters().length == 0) {
-      return null;
-    }
-
+  getOptionsMenu(player) {
     let attackOptions = player.listActiveMonsters()[0].listAttacks();
+    let changeMonsterIndex = attackOptions.length + 1;
+    let resignIndex = attackOptions.length + 2;
+    let optionsMenu = "Available Actions:\n";
 
-    console.log("Available Actions:");
-    for (let i = 0; i <= attackOptions.length; i++) {
-      if (i == attackOptions.length) {
-        console.log(`${i + 1}: Resign`);
-      }
-      console.log(`${i + 1}: ${attackOptions[i].getName()}`);
+    for (let i = 0; i < attackOptions.length; i++) {
+      optionsMenu += `${i + 1}: ${attackOptions[i].getName()}\n`;
     }
-    let playerActionIndex = prompt(
-      "Enter the number of the action you would like to take."
-    );
-    if (playerActionIndex - 1 == attackOptions.length) {
-      return null;
+    optionsMenu += `${changeMonsterIndex}: Change Monster\n`;
+    optionsMenu += `${resignIndex}: Resign\n`;
+    return optionsMenu;
+  }
+
+  getPlayerAction(player) {
+    let attackOptions = player.listActiveMonsters()[0].listAttacks();
+    let changeMonsterIndex = attackOptions.length + 1;
+    let resignIndex = attackOptions.length + 2;
+
+    //get valid player input
+    let validOption = true;
+    let playerActionIndex = -1;
+    do {
+      if (!validOption) {
+        console.log("Not a valid option.");
+      }
+      console.log(this.getOptionsMenu(player));
+      playerActionIndex = prompt(
+        `${player.getName()}, Enter the number of the action you would like to take.`
+      );
+
+      if (
+        !isNaN(playerActionIndex) &&
+        playerActionIndex > 0 &&
+        playerActionIndex <= resignIndex
+      ) {
+        validOption = true;
+      } else {
+        validOption = false;
+      }
+    } while (!validOption);
+
+    //return player action
+    if (playerActionIndex == resignIndex) {
+      return "resign";
+    }
+
+    if (playerActionIndex == changeMonsterIndex) {
+      return "change monster";
     }
 
     return attackOptions[playerActionIndex - 1];
+  }
+
+  selectMonster(player) {
+    let invalidSelection = false;
+    while (true) {
+      console.clear();
+      if (invalidSelection) {
+        console.log("That selection was invalid");
+      }
+
+      for (let i = 0; i < player.listMonsters().length; i++) {
+        let monster = player.listMonsters()[i];
+        console.log(
+          `${i + 1}: ${monster.getName()} ${
+            monster.getIsAlive() ? "" : "(dead)"
+          }`
+        );
+      }
+
+      let selection = prompt(
+        `${player.getName()} Enter the number of the monster you would like to select.`
+      );
+
+      if (
+        !isNaN(selection) &&
+        player.listMonsters()[selection - 1].getIsAlive() &&
+        selection >= 1 &&
+        selectiong <= player.listMonsters().length
+      ) {
+        return player.listActiveMonsters()[selection - 1];
+      }
+
+      invalidSelection = true;
+    }
   }
 
   runBattle() {
@@ -107,13 +171,45 @@ class Battle {
     let deffence = this.player2;
 
     //starting game loop
-    while (this.winner == "none") {
-      //prompt the player for their action
-      let playerAction = this.promptPlayerActions(offence);
+    while (true) {
+      if (offence.listActiveMonsters().length == 0) {
+        this.winner = deffence;
+        return this.winner;
+      }
+      console.clear();
+      console.log("_____________________________");
+      console.log(this.battleSituation());
 
-      //if the offensive player cannot act, or resigns then the defensive player wins.
-      if (!playerAction) {
-        this.winner = deffence.getName();
+      let playerAction = this.getPlayerAction(offence);
+      if (playerAction == "resign") {
+        this.winner = deffence;
+        return this.winner;
+      }
+
+      if (playerAction == "change monster") {
+        let sure = false;
+        let choice = "";
+        let validInput = true;
+        while (!sure) {
+          if (!validInput) {
+            console.log("That input was invalid");
+          }
+          choice = prompt(
+            "Are you sure you would like to change monsters? Doing so will skip your turn.\n Yes, I'm sure (y)\n No, I would like to go back to the action menu (n)\n"
+          );
+          if (choice == "y" || choice == "n") {
+            sure = true;
+          } else {
+            validInput = false;
+          }
+        }
+        if (choice == "y") {
+          offence.moveMonsterToFront(this.selectMonster(offence));
+          //change turn
+          let placeHolder = offence;
+          offence = deffence;
+          deffence = placeHolder;
+        }
       } else {
         this.strike(playerAction, deffence.listActiveMonsters[0]);
 
@@ -121,11 +217,9 @@ class Battle {
         let placeHolder = offence;
         offence = deffence;
         deffence = placeHolder;
+        // }
       }
     }
-
-    //declaring winner
-    console.log(`Battle Results: ${this.winner} won.`);
   }
 }
 

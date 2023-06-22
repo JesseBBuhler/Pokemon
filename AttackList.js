@@ -1,18 +1,61 @@
 const Attack = require("./Attack.js");
 
 const AttackList = [];
-const base = 3;
-const mod = 2;
+const hitPlusBase = 3;
+const hitPlusMod = 2;
+const damagePlusBase = 2;
+const damagePlusMod = 2;
+const smallDie = 4;
+const normalDie = 6;
+const largeDie = 8;
 
 AttackList.push(
-  new Attack("none", base + mod, base - mod, base - mod, "precise")
+  new Attack(
+    "none",
+    hitPlusBase + hitPlusMod,
+    damagePlusBase - damagePlusMod,
+    smallDie,
+    "precise"
+  )
 );
 AttackList.push(
-  new Attack("none", base - mod, base + mod, base - mod, "solid")
+  new Attack(
+    "none",
+    hitPlusBase - hitPlusMod,
+    damagePlusBase + damagePlusMod,
+    smallDie,
+    "solid"
+  )
 );
-AttackList.push(new Attack("none", base - mod, base - mod, base + mod, "wild"));
-AttackList.push(new Attack("none", base, base, base - mod, "controled"));
-AttackList.push(new Attack("none", base, base - mod, base, "normal"));
-AttackList.push(new Attack("none", base - mod, base, base, "risky"));
+AttackList.push(
+  new Attack(
+    "none",
+    hitPlusBase - hitPlusMod,
+    damagePlusBase - damagePlusMod,
+    largeDie,
+    "wild"
+  )
+);
+AttackList.push(
+  new Attack("none", hitPlusBase, damagePlusBase, smallDie, "controled")
+);
+AttackList.push(
+  new Attack(
+    "none",
+    hitPlusBase,
+    damagePlusBase - damagePlusMod,
+    normalDie,
+    "normal"
+  )
+);
+AttackList.push(
+  new Attack(
+    "none",
+    hitPlusBase - hitPlusMod,
+    damagePlusBase,
+    normalDie,
+    "risky"
+  )
+);
 
 module.exports = AttackList;

@@ -1,29 +1,35 @@
 const Attack = require("./Attack");
 
 class Monster {
-  constructor(type, maxHp, ac, attacks, name) {
+  constructor(type, maxHp, ac, name) {
     this.type = type;
     this.maxHp = maxHp;
     this.hp = maxHp;
     this.ac = ac;
-    this.attacks = attacks
-      .slice(0)
-      .map(
-        (attack) =>
-          new Attack(
-            type,
-            attack.getHitPlus(),
-            attack.getDamagePlus(),
-            attack.getDamageDie(),
-            attack.getName()
-          )
-      );
+    this.attacks = [];
     this.name = name;
     this.isAlive = true;
   }
 
   addAttack(attack) {
-    this.attacks.push(attack);
+    let newAttack = new Attack(
+      this.getType(),
+      attack.getHitPlus(),
+      attack.getDamagePlus(),
+      attack.getDamageDie(),
+      attack.getName()
+    );
+    this.attacks.push(newAttack);
+  }
+
+  clearAttackSet() {
+    this.Attacks = [];
+  }
+
+  addAttackSet(attackSet) {
+    for (let i = 0; i < attackSet.length; i++) {
+      this.addAttack(attackSet[i]);
+    }
   }
 
   takeDamage(damage) {
