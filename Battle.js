@@ -42,7 +42,7 @@ class Battle {
     let strikeDescription = `${monster.getName()} is targeted by ${attack.getName()}\n`;
     let advantage =
       attack.getType().getHitBonus() == monster.getType().getName();
-    strikeDescription += `Advantage: ${advantage}\n`;
+    strikeDescription += `Hit Advantage: ${advantage}\n`;
     let attackRoll = this.rollMod(this.dieSize, attack.getHitPlus(), advantage);
     strikeDescription += `Attack Roll: ${attackRoll}\n`;
 
@@ -51,6 +51,7 @@ class Battle {
       let damageRoll = 0;
       advantage =
         attack.getType().getDamageBonus() == monster.getType().getName();
+      strikeDescription += `Damage advantage: ${advantage}\n`;
       damageRoll = this.rollMod(
         attack.getDamageDie(),
         attack.getDamagePlus(),

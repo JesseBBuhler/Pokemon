@@ -3,7 +3,7 @@ const Monster = require("./Monster");
 const TypeList = require("./TypeList");
 
 const MonsterList = [];
-const maxHp = 30;
+const maxHp = 15;
 const ac = 10;
 const Wood = TypeList[0];
 const Earth = TypeList[1];
