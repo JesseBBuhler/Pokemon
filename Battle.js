@@ -11,14 +11,14 @@
  *
  */
 
-const prompt = require("prompt-sync")();
+const prompt = require("prompt-sync")({ sigint: true });
 
 class Battle {
   constructor(player1, player2) {
     this.player1 = player1;
     this.player2 = player2;
     this.winner = null;
-    this.dieSize;
+    this.dieSize = 20;
   }
 
   rollDie(dieSize = this.dieSzie) {
@@ -28,7 +28,7 @@ class Battle {
   rollMod(dieSize = this.dieSize, modifier = 0, advantage = false) {
     let roll = this.rollDie(dieSize);
     if (advantage) {
-      roll2 = this.rollDie(dieSize);
+      let roll2 = this.rollDie(dieSize);
       if (roll2 > roll) {
         roll = roll2;
       }
@@ -39,10 +39,16 @@ class Battle {
 
   //calculate if attack hits monster and how much damage the attack does.  Monster then takes that damage.
   strike(attack, monster) {
-    let advantage = attack.getType().hitBonus() == monster.getType().getName();
-    attackRoll = this.rollMod(this.dieSize, attack.getHitPlus(), advantage);
+    let strikeDescription = `${monster.getName()} is targeted by ${attack.getName()}\n`;
+    let advantage =
+      attack.getType().getHitBonus() == monster.getType().getName();
+    strikeDescription += `Advantage: ${advantage}\n`;
+    let attackRoll = this.rollMod(this.dieSize, attack.getHitPlus(), advantage);
+    strikeDescription += `Attack Roll: ${attackRoll}\n`;
+
     if (attackRoll >= monster.getAc()) {
-      damageRole = 0;
+      strikeDescription += "Attack Hit!\n";
+      let damageRoll = 0;
       advantage =
         attack.getType().getDamageBonus() == monster.getType().getName();
       damageRoll = this.rollMod(
@@ -50,17 +56,23 @@ class Battle {
         attack.getDamagePlus(),
         advantage
       );
-      monster.takeDamage(damageRole);
+      monster.takeDamage(damageRoll);
+      strikeDescription += `Damage taken: ${damageRoll}\n`;
+    } else {
+      strikeDescription += "Attack Missed!\n";
     }
+
+    return strikeDescription;
   }
 
   getStats(player) {
-    let statString = `${player.getName()}:`;
+    let statString = `${player.getName()}:\n`;
     let activeMonsters = player.listActiveMonsters();
 
     for (let i = 0; i < activeMonsters.length; i++) {
-      statString += ` ${activeMonsters[i].getName()}-
-      ${activeMonsters[i].getHp()}${i == activeMonsters.length ? "" : ","}`;
+      statString += `${activeMonsters[i].getName()}-${activeMonsters[
+        i
+      ].getHp()}${i == activeMonsters.length ? "" : ","}\n`;
     }
     return statString;
   }
@@ -100,10 +112,14 @@ class Battle {
     let validOption = true;
     let playerActionIndex = -1;
     do {
-      if (!validOption) {
-        console.log("Not a valid option.");
-      }
+      console.clear();
+      console.log("_____________________________");
+
+      console.log(this.battleSituation());
+
+      console.log(`${validOption ? "" : "Not a valid option."}`);
       console.log(this.getOptionsMenu(player));
+
       playerActionIndex = prompt(
         `${player.getName()}, Enter the number of the action you would like to take.`
       );
@@ -154,14 +170,36 @@ class Battle {
 
       if (
         !isNaN(selection) &&
-        player.listMonsters()[selection - 1].getIsAlive() &&
         selection >= 1 &&
-        selectiong <= player.listMonsters().length
+        selection <= player.listMonsters().length &&
+        player.listMonsters()[selection - 1].getIsAlive()
       ) {
-        return player.listActiveMonsters()[selection - 1];
+        return selection - 1;
       }
 
       invalidSelection = true;
+    }
+  }
+
+  sureChangeMonster() {
+    let validInput = true;
+    while (true) {
+      console.clear();
+      console.log(`${validInput ? "" : "That input was invalid"}`);
+      console.log(
+        "Are you sure you would like to change monsters? Doing so will skip your turn."
+      );
+      console.log(
+        "(y) Yes, I'm sure\n(n) No, I would like to go back to the action menu:"
+      );
+      let input = prompt("(y/n):");
+      if (input == "y") {
+        return true;
+      } else if (input == "n") {
+        return false;
+      } else {
+        validInput = false;
+      }
     }
   }
 
@@ -172,52 +210,43 @@ class Battle {
 
     //starting game loop
     while (true) {
+      let changeTurn = true;
+      //if the offense is out of monsters the deffense wins
       if (offence.listActiveMonsters().length == 0) {
         this.winner = deffence;
         return this.winner;
       }
-      console.clear();
-      console.log("_____________________________");
-      console.log(this.battleSituation());
 
       let playerAction = this.getPlayerAction(offence);
+
+      //if the offense resigns the deffense wins
       if (playerAction == "resign") {
         this.winner = deffence;
         return this.winner;
       }
 
       if (playerAction == "change monster") {
-        let sure = false;
-        let choice = "";
-        let validInput = true;
-        while (!sure) {
-          if (!validInput) {
-            console.log("That input was invalid");
-          }
-          choice = prompt(
-            "Are you sure you would like to change monsters? Doing so will skip your turn.\n Yes, I'm sure (y)\n No, I would like to go back to the action menu (n)\n"
-          );
-          if (choice == "y" || choice == "n") {
-            sure = true;
-          } else {
-            validInput = false;
-          }
-        }
-        if (choice == "y") {
+        if (!this.sureChangeMonster()) {
+          changeTurn = false;
+        } else {
           offence.moveMonsterToFront(this.selectMonster(offence));
-          //change turn
-          let placeHolder = offence;
-          offence = deffence;
-          deffence = placeHolder;
+          console.log(
+            `${offence.getName()} moved ${offence
+              .listActiveMonsters()[0]
+              .getName()} to the front.`
+          );
         }
       } else {
-        this.strike(playerAction, deffence.listActiveMonsters[0]);
+        console.log(
+          this.strike(playerAction, deffence.listActiveMonsters()[0])
+        );
+      }
 
-        //change turn
+      if (changeTurn) {
+        prompt(`Press enter to end ${offence.getName()}'s turn.`);
         let placeHolder = offence;
         offence = deffence;
         deffence = placeHolder;
-        // }
       }
     }
   }
